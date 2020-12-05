@@ -91,10 +91,11 @@ class Game extends React.Component {
             const col = squareId % 3 + 1;
             const row = Math.floor(squareId/3) + 1;
             const desc = move ? 'Go to move #' + move + ' col: ' + col + ' ,row: ' + row : 'Reset game';
+            const currentMove = j === this.state.stepNumber;
             j++;
             return (
-                <li key={move}>
-                    <button onClick={() => this.jumpTo(move)}>{desc}</button>
+                <li key={move} style={{'fontWeight':  currentMove ? 'bold' : 'normal'}}>
+                    <button onClick={() => this.jumpTo(move)} style={{'fontWeight':  currentMove ? 'bold' : 'normal'}}>{desc}</button>
                 </li>
             );
         });

@@ -21,7 +21,7 @@ class Board extends React.Component {
     renderRow(row) {
         return <div className="board-row">
             {
-                [1,2,3].map((j) => {
+                [0,1,2].map((j) => {
                     return this.renderSquare(3*j + row);
                 })
             }
@@ -49,7 +49,14 @@ class Game extends React.Component {
             }],
             stepNumber: 0,
             xIsNext: true,
+            revertSort: false
         }
+    }
+
+    handleSortClick() {
+        this.setState({
+            revertSort: !this.state.revertSort
+        })
     }
 
     handleClick(i) {
@@ -81,19 +88,20 @@ class Game extends React.Component {
 
     render() {
         const history = this.state.history;
+        const historyOrder = history.slice(0, this.state.stepNumber + 1);
+        const squarePosOrder = this.state.squarePos.slice(0, this.state.stepNumber + 1);
         const current = history[this.state.stepNumber];
         const winner = calculateWinner(current.squares);
-        let j = 0;
-        const moves = history.map((step, move) => {
-            const squareId = this.state.squarePos[j];
-            const col = squareId % 3 + 1;
-            const row = Math.floor(squareId/3) + 1;
-            const desc = move ? 'Go to move #' + move + ' col: ' + col + ' ,row: ' + row : 'Reset game';
-            const currentMove = j === this.state.stepNumber;
-            j++;
+        const moves = historyOrder.map((step, move) => {
+            const pos = this.state.revertSort && move ? this.state.stepNumber + 1 - move : move;
+            const squareId = squarePosOrder[pos];
+            const row = squareId % 3 + 1;
+            const col = Math.floor(squareId/3) + 1;
+            const desc = pos ? 'Go to move #' + pos + ' col: ' + col + ' ,row: ' + row : 'Reset game';
+            const currentMove = pos === this.state.stepNumber;
             return (
-                <li key={move} style={{'fontWeight':  currentMove ? 'bold' : 'normal'}}>
-                    <button onClick={() => this.jumpTo(move)} style={{'fontWeight':  currentMove ? 'bold' : 'normal'}}>{desc}</button>
+                <li key={pos} style={{'fontWeight':  currentMove ? 'bold' : 'normal'}}>
+                    <button onClick={() => this.jumpTo(pos)} style={{'fontWeight':  currentMove ? 'bold' : 'normal'}}>{desc}</button>
                 </li>
             );
         });
@@ -114,6 +122,7 @@ class Game extends React.Component {
                 <div className="game-info">
                     <div>{status}</div>
                     <ol>{moves}</ol>
+                    <button onClick={() => this.handleSortClick()}>Revert moves sorting</button>
                 </div>
             </div>
         );
